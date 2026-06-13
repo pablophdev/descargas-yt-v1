@@ -1,5 +1,9 @@
 // URL de conexión a tu microservicio en Spring Boot (usando 127.0.0.1 para evitar conflictos con Live Server)
-const BACKEND_URL = 'http://127.0.0.1:8080/api/v1/download/stream';
+// Cambia esto:
+// const BACKEND_URL = 'http://127.0.0.1:8080/api/v1/download/stream';
+
+// Por tu URL de Render (manteniendo la ruta del endpoint):
+const BACKEND_URL = 'https://descargas-yt-v1.onrender.com/api/v1/download/stream';
 
 document.getElementById('downloadForm').addEventListener('submit', async (e) => {
     e.preventDefault();
