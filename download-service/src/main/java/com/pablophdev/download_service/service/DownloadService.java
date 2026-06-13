@@ -28,7 +28,7 @@ public class DownloadService {
         if (!downloadsDir.exists()) {
             downloadsDir.mkdirs();
         }
-                    
+                 
         File tempDir = new File(downloadsDir, String.valueOf(System.currentTimeMillis()));
         if (!tempDir.exists()) {
             tempDir.mkdirs();
@@ -39,7 +39,7 @@ public class DownloadService {
             "bestvideo[height<=%s][vcodec*=avc1]+bestaudio[ext=m4a]",
             quality
         );
-                    
+                 
         String os = System.getProperty("os.name").toLowerCase();
         boolean isWindows = os.contains("win");
 
@@ -60,11 +60,11 @@ public class DownloadService {
             );
         } else {
             // Configuración para el servidor de producción (Render / Linux)
-            // En Linux, FFmpeg se instala de forma global a nivel de sistema,
-            // por lo que yt-dlp lo detecta automáticamente sin necesidad del parámetro '--ffmpeg-location'.
+            // === MODIFICADO: Se inyecta el parámetro --cookies apuntando al archivo copiado en Docker ===
             processBuilder = new ProcessBuilder(
                 getYtDlpPath(),
                 "-f", formatSelection,
+                "--cookies", "/app/cookies.txt", 
                 "--merge-output-format", "mp4",
                 "--yes-overwrites",
                 "-o", tempDir.getAbsolutePath() + File.separator + "%(title)s.%(ext)s",
@@ -89,7 +89,7 @@ public class DownloadService {
             deleteDirectory(tempDir);
             throw new RuntimeException("No se encontró ningún archivo descargado en la carpeta temporal");
         }
-                    
+                 
         // 6. Buscar específicamente el archivo fusionado definitivo (.mp4)
         File downloadedFile = null;
         for (File file : files) {
@@ -103,35 +103,49 @@ public class DownloadService {
         if (downloadedFile == null) {
             downloadedFile = files[0];
         }
-                    
+                 
         // 7. Convertir el archivo final en un arreglo de bytes para transferirlo
         byte[] fileContent = Files.readAllBytes(downloadedFile.toPath());
 
         // 8. Limpieza absoluta de la carpeta temporal para evitar agotar el almacenamiento de Render
         deleteDirectory(tempDir);
+
         return fileContent;
     }
 
     public String getVideoInfo(String url) throws Exception {
-        // Método auxiliar adaptado para recuperar el título usando la ruta dinámica del sistema
-        ProcessBuilder pb = new ProcessBuilder(
-            getYtDlpPath(),
-            "--get-title", 
-            url
-        );
+        // === MODIFICADO: Estructura adaptada para usar cookies según el S.O. y evitar bloqueo 429 ===
+        ProcessBuilder pb;
+        String os = System.getProperty("os.name").toLowerCase();
+        
+        if (os.contains("win")) {
+            // En tu PC Local (Windows) sigue funcionando por defecto
+            pb = new ProcessBuilder(
+                getYtDlpPath(),
+                "--get-title", 
+                url
+            );
+        } else {
+            // En Render (Linux) usamos las cookies empaquetadas para saltar el captcha de bot
+            pb = new ProcessBuilder(
+                getYtDlpPath(),
+                "--cookies", "/app/cookies.txt",
+                "--get-title", 
+                url
+            );
+        }
 
-        // CORRECCIÓN CRÍTICA PARA LINUX: Fusiona el flujo de error con la salida estándar.
-        // Esto evita que el buffer de Linux se llene con advertencias y congele el hilo.
+        // FUSIONA EL BUFFER DE ERROR CON EL DE SALIDA PARA EVITAR CONGELAMIENTOS EN LINUX
         pb.redirectErrorStream(true);
 
         Process process = pb.start();
         
-        // Se lee el stream completo (salida estándar + errores integrados)
+        // Se lee el stream integrado completo
         String output = new String(process.getInputStream().readAllBytes());
         int exitCode = process.waitFor();
         
         if (exitCode != 0) {
-            // Si falla, imprimimos exactamente qué dijo yt-dlp (muy útil si YouTube te tira un bloqueo 429)
+            // Si YouTube cambia algo, esto imprimirá la razón exacta directamente en los logs de Render
             System.err.println("Error al obtener info del video. Salida de yt-dlp: " + output);
             throw new RuntimeException("yt-dlp falló al obtener el título. Código de salida: " + exitCode);
         }

@@ -20,6 +20,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# === LÍNEA AGREGADA: Copia tus cookies dentro del contenedor de Render ===
+COPY cookies.txt /app/cookies.txt
+
 # Copia el archivo .jar generado en la fase anterior
 COPY --from=build /app/target/download-service-0.0.1-SNAPSHOT.jar app.jar
 
