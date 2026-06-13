@@ -11,16 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/download")
-// CORREGIDO: Damos permiso explícito a los orígenes comunes de Live Server y exponemos todas las cabeceras para que el navegador no se trabe
-@CrossOrigin(
-    origins = {
-        "http://127.0.0.1:5500", 
-        "http://localhost:5500", 
-        "https://descargas-yt-v1-gtld.vercel.app",
-        "https://descargas-yt-v1-gtld-git-main-pablophdev-s-projects.vercel.app"
-    }, 
-    exposedHeaders = "*"
-)
+@CrossOrigin(origins = "*", exposedHeaders = "Content-Disposition") // <-- AGREGA ESTA LÍNEA
 public class DownloadController {
 
     private final DownloadService downloadService;

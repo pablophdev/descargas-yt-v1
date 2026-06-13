@@ -1,9 +1,4 @@
-// URL de conexión a tu microservicio en Spring Boot (usando 127.0.0.1 para evitar conflictos con Live Server)
-// Cambia esto:
-// const BACKEND_URL = 'http://127.0.0.1:8080/api/v1/download/stream';
-
-// Por tu URL de Render (manteniendo la ruta del endpoint):
-const BACKEND_URL = 'https://descargas-yt-v1.onrender.com/api/v1/download/stream';
+const BACKEND_URL = 'http://localhost:8080/api/v1/download/stream';
 
 document.getElementById('downloadForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -12,7 +7,6 @@ document.getElementById('downloadForm').addEventListener('submit', async (e) => 
     const urlInput = document.getElementById('url').value;
     const qualitySelect = document.getElementById('quality').value;
     
-    // Captura de elementos DOM para animación de estados
     const btnSubmit = document.getElementById('btnSubmit');
     const btnIcon = document.getElementById('btnIcon');
     const btnText = document.getElementById('btnText');
@@ -22,7 +16,6 @@ document.getElementById('downloadForm').addEventListener('submit', async (e) => 
     const statusText = document.getElementById('statusText');
     const progressBar = document.getElementById('progressBar');
 
-    // 1. Estado Visual: Procesando Descarga en el Servidor
     btnSubmit.disabled = true;
     btnIcon.className = 'fa-solid fa-spinner fa-spin'; 
     btnText.innerText = 'Descargando...';
@@ -34,7 +27,6 @@ document.getElementById('downloadForm').addEventListener('submit', async (e) => 
     progressBar.classList.remove('hidden');
 
     try {
-        // 2. Realizar petición POST enviando el JSON estructurado al Backend
         const response = await fetch(BACKEND_URL, {
             method: 'POST',
             headers: {
@@ -50,13 +42,10 @@ document.getElementById('downloadForm').addEventListener('submit', async (e) => 
             throw new Error('No se pudo procesar la descarga de este video en el servidor.');
         }
 
-        // 3. Descargar los bytes en memoria usando un Blob directo
         const videoBlob = await response.blob();
 
-        // 4. Generar nombre de archivo seguro
         const nombreArchivo = `Video_YouTube_${qualitySelect}p_${Date.now()}.mp4`;
 
-        // 5. Crear el enlace de descarga virtual e iniciar la descarga nativa
         const downloadUrl = window.URL.createObjectURL(videoBlob);
         const linkOculto = document.createElement('a');
         linkOculto.href = downloadUrl;
@@ -66,16 +55,13 @@ document.getElementById('downloadForm').addEventListener('submit', async (e) => 
         linkOculto.click();
         document.body.removeChild(linkOculto);
         
-        // Liberar la memoria local de la ráfaga de bytes
         window.URL.revokeObjectURL(downloadUrl);
 
-        // 6. Estado Visual: Éxito Completo
         statusCard.className = 'status-card status-success';
         statusIcon.className = 'fa-solid fa-circle-check';
         statusText.innerText = '¡Éxito! El video se ha procesado y guardado en tu carpeta de descargas.';
         progressBar.classList.add('hidden');
 
-        // Limpiar el campo de URL para una nueva descarga
         document.getElementById('url').value = '';
 
     } catch (error) {
@@ -86,7 +72,6 @@ document.getElementById('downloadForm').addEventListener('submit', async (e) => 
         statusText.innerText = 'Hubo un error al procesar el archivo. Revisa la consola del navegador.';
         progressBar.classList.add('hidden');
     } finally {
-        // 8. Restaurar estado original del botón
         btnSubmit.disabled = false;
         btnIcon.className = 'fa-solid fa-cloud-arrow-down';
         btnText.innerText = 'Comenzar Descarga';
