@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PedriñoDescargas - Descargador de YouTube</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="card">
+            
+            <div class="card-header">
+                <div class="logo-wrapper">
+                    <i class="fa-brands fa-youtube logo-icon"></i>
+                </div>
+                <h1>Descarga los videos que quieras con Pedriño Descargas</h1>
+                <p>Descarga tus videos favoritos en alta calidad de forma directa</p>
+            </div>
+
+            <form id="downloadForm" class="download-form">
+                
+                <div class="input-group">
+                    <label for="url">Enlace del Video o Short</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-link field-icon"></i>
+                        <input 
+                            type="url" 
+                            id="url" 
+                            placeholder="https://www.youtube.com/watch?v=..." 
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="quality">Calidad de Video</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-sliders field-icon"></i>
+                        <select id="quality" required>
+                            <option value="1080">1080p (Full HD)</option>
+                            <option value="720" selected>720p (HD)</option>
+                            <option value="480">480p (Calidad Estándar)</option>
+                            <option value="360">360p (Baja Calidad)</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-arrow"></i>
+                    </div>
+                </div>
+
+                <button type="submit" id="btnSubmit" class="btn-submit">
+                    <i id="btnIcon" class="fa-solid fa-cloud-arrow-down"></i>
+                    <span id="btnText">Comenzar Descarga</span>
+                </button>
+
+            </form>
+
+            <div id="statusCard" class="status-card hidden">
+                <div class="status-content">
+                    <i id="statusIcon" class="fa-solid fa-circle-info"></i>
+                    <p id="statusText">Esperando acción...</p>
+                </div>
+                <div id="progressBar" class="progress-bar hidden">
+                    <div class="progress-line"></div>
+                </div>
+            </div>
+
+        </div> <footer class="app-footer">
+            <p>Creado por <span class="author-name">Pedro Philimon</span></p>
+        </footer>
+
+    </div> <script src="app.js"></script>
+</body>
+</html>

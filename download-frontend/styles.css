@@ -1,0 +1,340 @@
+/* ==========================================================================
+   Variables de Diseño y Reset Completo
+   ========================================================================== */
+:root {
+    --bg-main: #0f172a;       /* Gris pizarra ultra oscuro */
+    --bg-card: #1e293b;       /* Gris pizarra de tarjeta */
+    --bg-input: #090d16;      /* Fondo de inputs */
+    --text-main: #f8fafc;     /* Blanco suave */
+    --text-muted: #94a3b8;    /* Gris atenuado */
+    --primary: #ef4444;       /* Rojo vibrante de YouTube */
+    --primary-hover: #dc2626; /* Rojo oscuro para interacción */
+    --accent-glow: rgba(239, 68, 68, 0.15);
+    --border-color: #334155;  /* Borde sutil slate-700 */
+    --font-family: 'Plus Jakarta Sans', sans-serif;
+    
+    /* Colores de estado */
+    --info-bg: rgba(14, 165, 233, 0.1);
+    --info-border: #0ea5e9;
+    --info-text: #38bdf8;
+    --success-bg: rgba(34, 197, 94, 0.1);
+    --success-border: #22c55e;
+    --success-text: #4ade80;
+    --error-bg: rgba(239, 68, 68, 0.1);
+    --error-border: #ef4444;
+    --error-text: #f87171;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(239, 68, 68, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.03) 0%, transparent 40%);
+}
+
+/* ==========================================================================
+   Contenedores e Interfaz de Tarjeta
+   ========================================================================== */
+.main-container {
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column; /* Alineación vertical para tarjeta y footer */
+    animation: fadeIn 0.6s ease-out;
+}
+
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 40px 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Decoración superior sutil */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), #3b82f6);
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.logo-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background-color: rgba(239, 68, 68, 0.1);
+    border-radius: 20px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.logo-icon {
+    font-size: 32px;
+    color: var(--primary);
+}
+
+.card-header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
+
+.card-header p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   Campos de Formulario (Inputs y Selects)
+   ========================================================================== */
+.download-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.field-icon {
+    position: absolute;
+    left: 16px;
+    color: #475569;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s ease;
+    appearance: none;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+.input-wrapper input:focus + .field-icon,
+.input-wrapper select:focus + .field-icon {
+    color: var(--primary);
+}
+
+.input-wrapper input::placeholder {
+    color: #475569;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 16px;
+    color: var(--text-muted);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   Botón de Envío Interactivo
+   ========================================================================== */
+.btn-submit {
+    width: 100%;
+    background-color: var(--primary);
+    color: #ffffff;
+    border: none;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 10px 20px -10px rgba(239, 68, 68, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 8px;
+}
+
+.btn-submit:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px rgba(239, 68, 68, 0.6);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ==========================================================================
+   Caja de Estado Dinámica y Progreso
+   ========================================================================== */
+.status-card {
+    margin-top: 24px;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: slideUp 0.4s ease-out;
+}
+
+.status-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.status-content i {
+    font-size: 18px;
+    margin-top: 2px;
+}
+
+.status-content p {
+    font-size: 13.5px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.status-info {
+    background-color: var(--info-bg);
+    border: 1px solid var(--info-border);
+    color: var(--info-text);
+}
+
+.status-success {
+    background-color: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success-text);
+}
+
+.status-error {
+    background-color: var(--error-bg);
+    border: 1px solid var(--error-border);
+    color: var(--error-text);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-line {
+    width: 30%;
+    height: 100%;
+    background-color: currentColor;
+    border-radius: 2px;
+    animation: loadingIndeterminate 1.6s infinite linear;
+}
+
+/* ==========================================================================
+   Animaciones del Sistema (Keyframes)
+   ========================================================================== */
+.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes loadingIndeterminate {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+}
+
+/* ==========================================================================
+   Estilos para el Pie de Página (Footer)
+   ========================================================================== */
+.app-footer {
+    text-align: center;
+    margin-top: 24px;
+    width: 100%;
+}
+
+.app-footer p {
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+.app-footer .author-name {
+    color: var(--text-main);
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.main-container:hover .author-name {
+    color: var(--primary);
+}
