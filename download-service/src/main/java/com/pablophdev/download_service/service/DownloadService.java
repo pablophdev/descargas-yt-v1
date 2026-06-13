@@ -28,7 +28,7 @@ public class DownloadService {
         if (!downloadsDir.exists()) {
             downloadsDir.mkdirs();
         }
-                 
+                    
         File tempDir = new File(downloadsDir, String.valueOf(System.currentTimeMillis()));
         if (!tempDir.exists()) {
             tempDir.mkdirs();
@@ -39,7 +39,7 @@ public class DownloadService {
             "bestvideo[height<=%s][vcodec*=avc1]+bestaudio[ext=m4a]",
             quality
         );
-                 
+                    
         String os = System.getProperty("os.name").toLowerCase();
         boolean isWindows = os.contains("win");
 
@@ -89,7 +89,7 @@ public class DownloadService {
             deleteDirectory(tempDir);
             throw new RuntimeException("No se encontró ningún archivo descargado en la carpeta temporal");
         }
-                 
+                    
         // 6. Buscar específicamente el archivo fusionado definitivo (.mp4)
         File downloadedFile = null;
         for (File file : files) {
@@ -103,13 +103,12 @@ public class DownloadService {
         if (downloadedFile == null) {
             downloadedFile = files[0];
         }
-                 
+                    
         // 7. Convertir el archivo final en un arreglo de bytes para transferirlo
         byte[] fileContent = Files.readAllBytes(downloadedFile.toPath());
 
         // 8. Limpieza absoluta de la carpeta temporal para evitar agotar el almacenamiento de Render
         deleteDirectory(tempDir);
-
         return fileContent;
     }
 
@@ -120,10 +119,24 @@ public class DownloadService {
             "--get-title", 
             url
         );
+
+        // CORRECCIÓN CRÍTICA PARA LINUX: Fusiona el flujo de error con la salida estándar.
+        // Esto evita que el buffer de Linux se llene con advertencias y congele el hilo.
+        pb.redirectErrorStream(true);
+
         Process process = pb.start();
-        String title = new String(process.getInputStream().readAllBytes());
-        process.waitFor();
-        return title.trim();
+        
+        // Se lee el stream completo (salida estándar + errores integrados)
+        String output = new String(process.getInputStream().readAllBytes());
+        int exitCode = process.waitFor();
+        
+        if (exitCode != 0) {
+            // Si falla, imprimimos exactamente qué dijo yt-dlp (muy útil si YouTube te tira un bloqueo 429)
+            System.err.println("Error al obtener info del video. Salida de yt-dlp: " + output);
+            throw new RuntimeException("yt-dlp falló al obtener el título. Código de salida: " + exitCode);
+        }
+
+        return output.trim();
     }
 
     private void deleteDirectory(File directory) {
