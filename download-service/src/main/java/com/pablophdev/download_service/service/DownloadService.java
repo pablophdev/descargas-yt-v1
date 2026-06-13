@@ -2,33 +2,37 @@ package com.pablophdev.download_service.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DownloadService {
 
-    /**
-     * Retorna la ruta de yt-dlp de manera relativa dentro del proyecto en Windows.
-     */
     private String getYtDlpPath() {
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) {
-            // Usa la carpeta yt-dlp dentro de la raíz del proyecto corriendo en Windows
             return "yt-dlp" + File.separator + "yt-dlp.exe";
         }
         return "/usr/local/bin/yt-dlp";
     }
 
-    public byte[] downloadVideo(String url, String quality) throws IOException, InterruptedException {
-        File downloadsDir = new File("downloads");
-        if (!downloadsDir.exists()) {
-            downloadsDir.mkdirs();
+    // Cambiamos el retorno a String para devolver un mensaje de éxito con la ruta
+    public String downloadVideo(String url, String quality) throws IOException, InterruptedException {
+        String os = System.getProperty("os.name").toLowerCase();
+        boolean isWindows = os.contains("win");
+        
+        File targetDir;
+
+        if (isWindows) {
+            // Obtiene dinámicamente "C:\Users\TuUsuario\Downloads"
+            String userHome = System.getProperty("user.home");
+            targetDir = new File(userHome + File.separator + "Downloads");
+        } else {
+            // Fallback por si acaso corres en Linux/producción
+            targetDir = new File("downloads");
         }
-                 
-        File tempDir = new File(downloadsDir, String.valueOf(System.currentTimeMillis()));
-        if (!tempDir.exists()) {
-            tempDir.mkdirs();
+
+        if (!targetDir.exists()) {
+            targetDir.mkdirs();
         }
 
         String formatSelection = String.format(
@@ -36,21 +40,17 @@ public class DownloadService {
             quality
         );
                  
-        String os = System.getProperty("os.name").toLowerCase();
-        boolean isWindows = os.contains("win");
-
         ProcessBuilder processBuilder;
         
         if (isWindows) {    
-            // Apunta a la ubicación de FFmpeg dentro de la misma carpeta interna del proyecto
-            String ffmpegLocation = "yt-dlp";
+            String ffmpegLocation = "yt-dlp"; // Carpeta donde está tu ffmpeg.exe relativo
             processBuilder = new ProcessBuilder(
                 getYtDlpPath(),
                 "-f", formatSelection,
                 "--ffmpeg-location", ffmpegLocation,
                 "--merge-output-format", "mp4",      
                 "--yes-overwrites",                   
-                "-o", tempDir.getAbsolutePath() + File.separator + "%(title)s.%(ext)s",
+                "-o", targetDir.getAbsolutePath() + File.separator + "%(title)s.%(ext)s", // Guardado directo aquí
                 url
             );
         } else {
@@ -59,7 +59,7 @@ public class DownloadService {
                 "-f", formatSelection,
                 "--merge-output-format", "mp4",
                 "--yes-overwrites",
-                "-o", tempDir.getAbsolutePath() + File.separator + "%(title)s.%(ext)s",
+                "-o", targetDir.getAbsolutePath() + File.separator + "%(title)s.%(ext)s",
                 url
             );
         }
@@ -68,33 +68,13 @@ public class DownloadService {
 
         Process process = processBuilder.start();
         int exitCode = process.waitFor();
+        
         if (exitCode != 0) {
-            deleteDirectory(tempDir);
             throw new RuntimeException("Error al descargar el video con yt-dlp. Código de salida: " + exitCode);
         }
 
-        File[] files = tempDir.listFiles();
-        if (files == null || files.length == 0) {
-            deleteDirectory(tempDir);
-            throw new RuntimeException("No se encontró ningún archivo descargado en la carpeta temporal");
-        }
-                 
-        File downloadedFile = null;
-        for (File file : files) {
-            if (file.getName().endsWith(".mp4")) {
-                downloadedFile = file;
-                break;
-            }
-        }
-
-        if (downloadedFile == null) {
-            downloadedFile = files[0];
-        }
-                 
-        byte[] fileContent = Files.readAllBytes(downloadedFile.toPath());
-        deleteDirectory(tempDir);
-
-        return fileContent;
+        // Retornamos la ruta absoluta donde quedó guardado para informar al usuario
+        return "Video descargado con éxito en: " + targetDir.getAbsolutePath();
     }
 
     public String getVideoInfo(String url) throws Exception {
@@ -109,15 +89,5 @@ public class DownloadService {
         String title = new String(process.getInputStream().readAllBytes());
         process.waitFor();
         return title.trim();
-    }
-
-    private void deleteDirectory(File directory) {
-        File[] allContents = directory.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                file.delete();
-            }
-        }
-        directory.delete();
     }
 }
